@@ -1,56 +1,173 @@
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(
+    title: 'shopping app',
+    home: ShoppingList(
+      products: [
+        Product(name: 'eggs'),
+        Product(name: 'flour'),
+        Product(name: 'others')
+      ],
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'hello flutter',
-      home: RandomWords(),
-    );
-  }
-}
-
-class RandomWords extends StatefulWidget {
-  @override
-  _RandomWordState createState() => _RandomWordState();
-}
-
-class _RandomWordState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
-  final _biggerFont = TextStyle(fontSize: 18.0);
-
-  Widget _buildRow(WordPair pair) {
-    return ListTile(
-      title: Text(
-        pair.asPascalCase,
-        style: _biggerFont,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('statefull widget demo'),
+        ),
+        body: Counter(),
       ),
     );
   }
+}
 
-  Widget _buildSuggestions() {
-    return ListView.builder(itemBuilder: (context, i) {
-      if (i.isOdd) return Divider();
+class Counter extends StatefulWidget {
+  @override
+  _CounterState createState() {
+    return _CounterState();
+  }
+}
 
-      final index = i ~/ 2; // 判断是否列表滚动到一半，如果到一半了，以下条件成立，增加列表成员。
+class _CounterState extends State {
+  int _counter = 0;
 
-      if (index >= _suggestions.length) {
-        _suggestions.addAll(generateWordPairs().take(10));
+  void _increment() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        CounterIncrementor(onPressed: _increment),
+        CounterDisplay(
+          counter: _counter,
+        )
+      ],
+    );
+  }
+}
+
+class CounterDisplay extends StatelessWidget {
+  CounterDisplay({this.counter});
+
+  final int counter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text('Counter: $counter');
+  }
+}
+
+class CounterIncrementor extends StatelessWidget {
+  CounterIncrementor({this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      child: Text('increment'),
+      onPressed: onPressed,
+    );
+  }
+}
+
+class Product {
+  const Product({this.name});
+
+  final String name;
+}
+
+typedef void CartChangedCallBack(Product product, bool inCart);
+
+class ShoppingListItem extends StatelessWidget {
+  ShoppingListItem({this.product, this.inCart, this.onCardChanged})
+      : super(key: ObjectKey(product));
+
+  final Product product;
+  final bool inCart;
+  final CartChangedCallBack onCardChanged;
+
+  Color _getColor(BuildContext context) {
+    return inCart ? Colors.black54 : Theme.of(context).primaryColor;
+  }
+
+  TextStyle _getTextStyle(BuildContext context) {
+    if (!inCart) return null;
+
+    return TextStyle(
+      color: Colors.black54,
+      decoration: TextDecoration.lineThrough,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () {
+        onCardChanged(product, inCart);
+      },
+      leading: CircleAvatar(
+        backgroundColor: _getColor(context),
+        child: Text(product.name[0]),
+      ),
+      title: Text(
+        product.name,
+        style: _getTextStyle(context),
+      ),
+    );
+  }
+}
+
+class ShoppingList extends StatefulWidget {
+  ShoppingList({Key key, this.products}) : super(key: key);
+
+  final List<Product> products;
+
+  @override
+  _ShoppingListState createState() {
+    return _ShoppingListState();
+  }
+}
+
+class _ShoppingListState extends State<ShoppingList> {
+  Set<Product> _shoppingCart = Set<Product>();
+
+  void _handleCartChanged(Product product, bool inCart) {
+    setState(() {
+      if (!inCart) {
+        _shoppingCart.add(product);
+      } else {
+        _shoppingCart.remove(product);
       }
-
-      return _buildRow(_suggestions[index]);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('name generator')),
-        body: _buildSuggestions());
+      appBar: AppBar(
+        title: Text('shopp list'),
+      ),
+      body: ListView(
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        children: widget.products.map((Product product) {
+          return ShoppingListItem(
+            product: product,
+            inCart: _shoppingCart.contains(product),
+            onCardChanged: _handleCartChanged,
+          );
+        }).toList(),
+      ),
+    );
   }
 }
