@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_todo/easy_json_decode.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 
-void main(List<String> args) {}
+void main(List<String> args) {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -18,6 +23,11 @@ class MyApp extends StatelessWidget {
             onPressed: () async {
               try {
                 Response res = await http.get('http://192.168.0.113:3000');
+                Map userMap = jsonDecode(res.body);
+                var user = User.fromJson(userMap);
+
+                print('username: ${user.name}');
+                print('email: ${user.email}');
               } catch (e) {}
             },
           ),
