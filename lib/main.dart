@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo/auth_screen.dart';
 import 'package:flutter_todo/store/auth.dart';
+import 'package:flutter_todo/store/todo.dart';
 import 'package:flutter_todo/todo_screen.dart';
 import 'package:provider/provider.dart';
 
 void main(List<String> args) {
-  runApp(ChangeNotifierProvider(
-    create: (_) => AuthModel(),
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (_) => TodoModel(),
+      ),
+      ChangeNotifierProvider(
+        create: (_) => AuthModel(),
+      )
+    ],
     child: MyApp(),
   ));
 }
