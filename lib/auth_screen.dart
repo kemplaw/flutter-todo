@@ -62,6 +62,8 @@ class _AuthFormState extends State<AuthForm> {
                           print('button build');
 
                           return RaisedButton(
+                            color: Theme.of(context).primaryColor,
+                            textColor: Colors.white,
                             child: Text('登录'),
                             onPressed: () {
                               FormState formState = Form.of(formContext);

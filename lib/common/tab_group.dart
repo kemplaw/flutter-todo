@@ -7,12 +7,17 @@ enum TabStatus {
 }
 
 class TabGroup extends StatelessWidget {
-  TabGroup({this.onPressed});
+  TabGroup({this.checked = TabStatus.all, this.onPressed});
 
-  void Function(TabStatus id) onPressed;
+  final TabStatus checked;
+  final void Function(TabStatus id) onPressed;
 
-  Widget _tabItemBuilder(TabStatus id, String label) {
-    return FlatButton(
+  Widget _tabItemBuilder(BuildContext context, TabStatus id, String label) {
+    Color primaryColor = id == checked ? Colors.blue : Colors.black54;
+
+    return RaisedButton(
+      color: primaryColor,
+      textColor: Colors.white,
       child: Text(label),
       onPressed: () {
         onPressed(id);
@@ -23,10 +28,11 @@ class TabGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _tabItemBuilder(TabStatus.all, 'all'),
-        _tabItemBuilder(TabStatus.active, 'active'),
-        _tabItemBuilder(TabStatus.completed, 'completed'),
+        _tabItemBuilder(context, TabStatus.all, 'all'),
+        _tabItemBuilder(context, TabStatus.active, 'active'),
+        _tabItemBuilder(context, TabStatus.completed, 'completed'),
       ],
     );
   }
